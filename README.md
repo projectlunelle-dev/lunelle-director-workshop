@@ -2,21 +2,15 @@
 
 Lunelle atelier for **Story #001** — write scenes with Ryo, Ren, Natsuki, and Raina.
 
-## Screens
+Repo: https://github.com/projectlunelle-dev/lunelle-director-workshop
 
-Story Libraries → Director’s Room → Characters → Workshop → Configure / Timeline / Archive
+## Use it now
 
-## Local
+On your phone, tap the **Lunelle Director Workshop** card at the bottom of this Grok chat (the unpublished site). That is the working clone.
 
-```bash
-npm install
-npm run dev
-```
+## GitHub → Netlify
 
-## Netlify
-
-1. Add a new site → Import from Git → this repository
-2. Build command: `npm run build`
-3. Publish directory: `dist`
-
-Scene writing uses a server function. Import from Git (not a static drag-and-drop) so that path stays live.
+1. Open this repo on a computer
+2. Netlify → Add new site → Import from Git → this repository
+3. Build command: `npm run build`
+4. Publish directory: `dist`
