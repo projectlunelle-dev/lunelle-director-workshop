@@ -18,6 +18,7 @@ export type GateIdentity = {
 };
 
 export type GateJwks = { keys: JWK[] };
+
 export type JwksFetch = (url: string) => Promise<GateJwks | null>;
 
 function env(key: string): string | undefined {
@@ -57,6 +58,7 @@ export function gateKeyResolver(
         (k) =>
           k.kty === "OKP" && k.crv === "Ed25519" && (!kid || k.kid === kid),
       );
+
     let entry = jwksCache.get(url);
     if (!entry || Date.now() - entry.fetchedAt > JWKS_CACHE_TTL_MS) {
       const jwks = await jwksFetch(url);
@@ -65,6 +67,7 @@ export function gateKeyResolver(
         jwksCache.set(url, entry);
       }
     }
+
     let key = entry ? findKey(entry.jwks) : undefined;
     if (!key) {
       const jwks = await jwksFetch(url);
@@ -120,12 +123,14 @@ export function resolveGateEndpoints(headers: Headers): GateEndpoints | null {
     const origin = explicit.replace(/\/+$/, "");
     return { issuer: origin, jwksUrl: `${origin}${GATE_JWKS_PATH}` };
   }
+
   const xf = headers.get("x-forwarded-host")?.split(",")[0]?.trim();
   const host = (xf || headers.get("host") || "")
     .split(":")[0]
     ?.trim()
     .toLowerCase();
   if (!host) return null;
+
   let issuer: string | null = null;
   if (
     host === "app-builder-testing.com" ||
@@ -136,6 +141,7 @@ export function resolveGateEndpoints(headers: Headers): GateEndpoints | null {
     issuer = "https://gate.grok.me";
   }
   if (!issuer) return null;
+
   return { issuer, jwksUrl: `${issuer}${GATE_JWKS_PATH}` };
 }
 

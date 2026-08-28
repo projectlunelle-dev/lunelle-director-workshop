@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { CHARACTER_NAMES, formatCast, type CharacterId } from "./data";
+import { CHARACTERS, CHARACTER_NAMES, formatCast, type CharacterId } from "./data";
 
 export type SceneWriterInput = {
   config: {
@@ -7,6 +7,7 @@ export type SceneWriterInput = {
     timeline: string;
     setting: string;
     premise: string;
+    mood?: string;
   };
   entries: { label: string; text: string }[];
   instruction: string;
@@ -24,6 +25,14 @@ export const continueScene = createServerFn({ method: "POST" })
     const names = (data.config.cast ?? [])
       .map((id) => CHARACTER_NAMES[id as CharacterId] ?? id)
       .join(", ");
+    const briefs = (data.config.cast ?? [])
+      .map((id) => CHARACTERS.find((c) => c.id === id))
+      .filter((c): c is (typeof CHARACTERS)[number] => Boolean(c))
+      .map((c) => {
+        const core = c.profile.find((row) => row.title === "Core")?.body ?? "";
+        return `${c.name} (${c.role}) — ${c.kicker}\nVoice: ${c.voice}\n${core}`;
+      })
+      .join("\n\n");
     const recent = (data.entries ?? [])
       .slice(-6)
       .map((e) => `${e.label}: ${e.text}`)
@@ -34,12 +43,17 @@ export const continueScene = createServerFn({ method: "POST" })
     const system = `You are the Scene Writer for Project Lunelle, a dreamy editorial atelier.
 Write literary, visual, slice-of-life prose for a childhood seaside romance set in Kanagawa.
 The principal children are about 10–11 years old. Keep every beat age-appropriate, tender, and grounded — no romance beyond shy noticing, no adult themes, no violence.
+Stay true to each character's voice and lore. Do not make anyone speak out of character.
 Style: close third person, sensory, unhurried. Late-afternoon light, wind, tide, small gestures. 2–4 short paragraphs. Do not title the piece. Do not recap the configuration. Continue from the latest beat.`;
 
     const user = `Cast: ${names || cast}
 Timeline: ${data.config.timeline}
 Setting: ${data.config.setting}
 Premise: ${data.config.premise}
+Mood: ${data.config.mood || "unhurried"}
+
+Character briefs:
+${briefs || "(no briefs)"}
 
 Notebook so far:
 ${recent || "(opening only)"}

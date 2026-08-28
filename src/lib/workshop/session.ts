@@ -2,7 +2,9 @@ import {
   ARCHIVE,
   DEFAULT_CONFIG,
   formatCast,
+  ideaImage,
   SCREENS,
+  type ArchiveItem,
   type CharacterId,
   type SceneConfig,
   type ScreenId,
@@ -30,6 +32,7 @@ export type SceneSession = {
   config: SceneConfig;
   history: SceneHistory;
   directorInstruction: string;
+  notes: string;
 };
 
 export type AppState = {
@@ -47,6 +50,46 @@ export const INITIAL_STATE: AppState = {
   selectedSceneId: "first-encounter",
   sceneConfig: { ...DEFAULT_CONFIG, cast: [...DEFAULT_CONFIG.cast] },
 };
+
+const STORAGE_KEY = "lunelle-workshop-v1";
+
+export type PersistedWorkshop = {
+  sceneConfig: SceneConfig;
+  savedArchive: ArchiveItem[];
+  notesByScene: Record<string, string>;
+};
+
+export function loadPersisted(): PersistedWorkshop | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PersistedWorkshop;
+    if (!parsed?.sceneConfig) return null;
+    return {
+      sceneConfig: {
+        ...DEFAULT_CONFIG,
+        ...parsed.sceneConfig,
+        cast: parsed.sceneConfig.cast?.length
+          ? parsed.sceneConfig.cast
+          : [...DEFAULT_CONFIG.cast],
+      },
+      savedArchive: Array.isArray(parsed.savedArchive) ? parsed.savedArchive : [],
+      notesByScene: parsed.notesByScene ?? {},
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function savePersisted(data: PersistedWorkshop) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    /* quota */
+  }
+}
 
 function slug(prefix: string, seed: string) {
   const rest =
@@ -80,12 +123,13 @@ export function openingEntries(config: SceneConfig): SceneEntry[] {
   const timeline = config.timeline?.trim() || "Unspecified timeline";
   const setting = config.setting?.trim() || "An undefined setting";
   const premise = config.premise?.trim() || "An open-ended moment";
+  const mood = config.mood?.trim() || "an unhurried mood";
   return [
     {
       id: slug("opening-setting", setting),
       kind: "opening",
       label: "Setting",
-      text: `${setting} frames the opening of “${premise}” during ${timeline}.`,
+      text: `${setting} frames the opening of “${premise}” during ${timeline}, held in a mood of ${mood}.`,
       source: "configuration",
     },
     {
@@ -193,12 +237,16 @@ export function createHistory(seed: SceneEntry[] = []): SceneHistory {
   return wrap();
 }
 
-export function createSession(config: SceneConfig): SceneSession {
+export function createSession(
+  config: SceneConfig,
+  notes = "",
+): SceneSession {
   const next = { ...config, cast: [...(config.cast ?? [])] };
   return {
     config: next,
     history: createHistory(openingEntries(next)),
     directorInstruction: "",
+    notes,
   };
 }
 
@@ -220,10 +268,29 @@ export function selectCharacter(state: AppState, id: string): AppState {
   );
 }
 
-export function openArchiveScene(state: AppState, id: string): AppState {
-  const scene = ARCHIVE.find((s) => s.id === id);
-  if (!scene?.available) return state;
-  return pushScreen({ ...state, selectedSceneId: scene.id }, "workspace");
+export function findArchiveItem(
+  id: string,
+  extra: ArchiveItem[] = [],
+): ArchiveItem | undefined {
+  return extra.find((s) => s.id === id) ?? ARCHIVE.find((s) => s.id === id);
+}
+
+export function openArchiveScene(
+  state: AppState,
+  id: string,
+  extra: ArchiveItem[] = [],
+): AppState {
+  const scene = findArchiveItem(id, extra);
+  if (!scene) return state;
+  const config = scene.config ?? state.sceneConfig;
+  return pushScreen(
+    {
+      ...state,
+      selectedSceneId: scene.id,
+      sceneConfig: { ...config, cast: [...config.cast] },
+    },
+    "workspace",
+  );
 }
 
 export function goBack(state: AppState): AppState {
@@ -236,7 +303,31 @@ export function patchConfig(state: AppState, patch: Partial<SceneConfig>): AppSt
   return { ...state, sceneConfig: { ...state.sceneConfig, ...patch } };
 }
 
-export function filterArchive(filter: string) {
-  if (filter === "all") return [...ARCHIVE];
-  return ARCHIVE.filter((item) => item.filter === filter);
+export function filterArchive(filter: string, extra: ArchiveItem[] = []) {
+  const seen = new Set<string>();
+  const items = [...extra, ...ARCHIVE].filter((item) => {
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+  if (filter === "all") return items;
+  return items.filter((item) => item.filter === filter);
+}
+
+export function makeSavedScene(
+  config: SceneConfig,
+  excerpt: string,
+): ArchiveItem {
+  const title = config.premise?.trim() || "Untitled Scene";
+  return {
+    id: `saved-${Date.now()}`,
+    status: "Saved",
+    filter: "saved",
+    title,
+    meta: `${config.timeline} · ${config.setting}`,
+    image: ideaImage(title),
+    available: true,
+    config: { ...config, cast: [...config.cast] },
+    excerpt: excerpt.slice(0, 280),
+  };
 }

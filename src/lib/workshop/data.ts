@@ -51,6 +51,16 @@ export const CHARACTERS: Character[] = [
         title: "First spring",
         note: "A young Ryo beneath the blossoms.",
       },
+      {
+        src: `${ASSET}/ryo.jpg`,
+        title: "Window light",
+        note: "He keeps the brightest part of the day behind him.",
+      },
+      {
+        src: `${ASSET}/idea-seawall.jpg`,
+        title: "The path",
+        note: "Which stones hold heat after sunset.",
+      },
     ],
     relationships: [
       {
@@ -116,6 +126,11 @@ export const CHARACTERS: Character[] = [
         src: `${ASSET}/ren.jpg`,
         title: "Seaside study",
         note: "An early workshop portrait.",
+      },
+      {
+        src: `${ASSET}/scene-art.jpg`,
+        title: "Beside him",
+        note: "The first still of a summer that has not named itself.",
       },
     ],
     relationships: [
@@ -183,6 +198,11 @@ export const CHARACTERS: Character[] = [
         title: "Glasshouse light",
         note: "An early workshop portrait.",
       },
+      {
+        src: `${ASSET}/home-hero.jpg`,
+        title: "From the edge",
+        note: "A circle that formed without him.",
+      },
     ],
     relationships: [
       {
@@ -249,6 +269,16 @@ export const CHARACTERS: Character[] = [
         title: "Rainy evening",
         note: "An early workshop portrait.",
       },
+      {
+        src: `${ASSET}/idea-camera.jpg`,
+        title: "What she keeps",
+        note: "A frame for everyone she refuses to lose.",
+      },
+      {
+        src: `${ASSET}/idea-rain.jpg`,
+        title: "Shelter",
+        note: "The lens fogs. She films that too.",
+      },
     ],
     relationships: [
       {
@@ -303,6 +333,22 @@ export const CHARACTERS: Character[] = [
   },
 ];
 
+export type SceneConfig = {
+  cast: CharacterId[];
+  timeline: string;
+  setting: string;
+  premise: string;
+  mood: string;
+};
+
+export const DEFAULT_CONFIG: SceneConfig = {
+  cast: ["ryo", "ren"],
+  timeline: "Childhood · First Meeting",
+  setting: "Seaside path · Late afternoon",
+  premise: "The Lost Camera",
+  mood: "Nervous · Hopeful",
+};
+
 export type ArchiveItem = {
   id: string;
   status: string;
@@ -311,6 +357,8 @@ export type ArchiveItem = {
   meta: string;
   image: string;
   available: boolean;
+  config: SceneConfig;
+  excerpt?: string;
 };
 
 export const ARCHIVE: ArchiveItem[] = [
@@ -322,6 +370,7 @@ export const ARCHIVE: ArchiveItem[] = [
     meta: "Childhood · Seaside path",
     image: `${ASSET}/scene-art.jpg`,
     available: true,
+    config: { ...DEFAULT_CONFIG, cast: ["ryo", "ren"] },
   },
   {
     id: "lost-camera",
@@ -330,16 +379,46 @@ export const ARCHIVE: ArchiveItem[] = [
     title: "The Lost Camera",
     meta: "First summer · Story #001",
     image: `${ASSET}/idea-camera.jpg`,
-    available: false,
+    available: true,
+    config: {
+      cast: ["ryo", "ren", "raina"],
+      timeline: "First Summer · The Camera",
+      setting: "Seaside path · Late afternoon",
+      premise: "The Lost Camera",
+      mood: "Nervous · Hopeful",
+    },
+  },
+  {
+    id: "seawall-dare",
+    status: "Idea",
+    filter: "ideas",
+    title: "A Dare at the Seawall",
+    meta: "Childhood · High tide",
+    image: `${ASSET}/idea-seawall.jpg`,
+    available: true,
+    config: {
+      cast: ["ryo", "ren"],
+      timeline: "Childhood · First Meeting",
+      setting: "Seawall · High tide",
+      premise: "A Dare at the Seawall",
+      mood: "Bright · Reckless",
+    },
   },
   {
     id: "waiting-out-rain",
     status: "Idea",
     filter: "ideas",
     title: "Waiting Out the Rain",
-    meta: "Unscheduled · Story #001",
+    meta: "Unscheduled · Station eaves",
     image: `${ASSET}/idea-rain.jpg`,
-    available: false,
+    available: true,
+    config: {
+      cast: ["ryo", "ren", "raina"],
+      timeline: "First Summer · The Camera",
+      setting: "Station road · Evening rain",
+      premise: "Waiting Out the Rain",
+      mood: "Rain-soaked · Close",
+    },
   },
 ];
 
@@ -352,28 +431,53 @@ export const SCENE_IDEAS: { title: string; image: string }[] = [
 export const TIMELINES = [
   "Childhood · First Meeting",
   "First Summer · The Camera",
+  "Later · Natsuki Arrives",
 ] as const;
 
 export const SETTINGS = [
   "Seaside path · Late afternoon",
   "School rooftop · After class",
+  "Station road · Evening rain",
+  "Seawall · High tide",
+] as const;
+
+export const MOODS = [
+  "Nervous · Hopeful",
+  "Quiet · Tender",
+  "Bright · Reckless",
+  "Rain-soaked · Close",
 ] as const;
 
 export const TIMELINE_EVENTS = [
   {
-    era: "Childhood",
+    era: "Childhood · Spring",
     title: "First Meeting",
-    body: "Ren and Ryo meet near the seaside path.",
+    body: "Ren finds Ryo on the seaside path after class, neither of them in a hurry to go home. The tide is out. They walk the same stones twice.",
+  },
+  {
+    era: "Childhood · Late light",
+    title: "The Seawall Dare",
+    body: "Someone says the railing is easy to climb. Ryo does not want to. Ren makes it a joke so it does not have to be a test.",
   },
   {
     era: "First Summer",
     title: "The Camera",
-    body: "Raina begins collecting the group through her film project.",
+    body: "Raina’s camera arrives slightly too large for her hands. She begins collecting the group as if the summer will only be real if it is recorded.",
   },
   {
-    era: "Later",
+    era: "First Summer · Rain",
+    title: "Waiting Out the Rain",
+    body: "A squall pins them under the station eaves. Conversation slows to the sound of water in the gutters. Someone offers a spare jacket.",
+  },
+  {
+    era: "Later · New term",
     title: "Natsuki Joins",
-    body: "Natsuki enters the group after its earliest formation.",
+    body: "Natsuki enters after the circle has already named itself. He is polished, watchful, and not sure whether he is being invited or evaluated.",
+  },
+  {
+    era: "Later · Autumn",
+    title: "The Station Road",
+    body: "The shop lights come on earlier. Ren’s family street becomes a place to loiter without admitting anyone is waiting for anyone else.",
   },
 ];
 
@@ -398,20 +502,6 @@ export const SCREENS: ScreenId[] = [
   "archive",
 ];
 
-export type SceneConfig = {
-  cast: CharacterId[];
-  timeline: string;
-  setting: string;
-  premise: string;
-};
-
-export const DEFAULT_CONFIG: SceneConfig = {
-  cast: ["ryo", "ren"],
-  timeline: "Childhood · First Meeting",
-  setting: "Seaside path · Late afternoon",
-  premise: "The Lost Camera",
-};
-
 export function characterById(id: string): Character {
   return CHARACTERS.find((c) => c.id === id) ?? CHARACTERS[0];
 }
@@ -423,4 +513,11 @@ export function formatCast(ids: string[]): string {
   if (names.length <= 1) return names[0] ?? "the selected cast";
   if (names.length === 2) return `${names[0]} and ${names[1]}`;
   return `${names.slice(0, -1).join(", ")}, and ${names.at(-1)}`;
+}
+
+export function ideaImage(title: string): string {
+  return (
+    SCENE_IDEAS.find((idea) => idea.title === title)?.image ??
+    `${ASSET}/scene-art.jpg`
+  );
 }
