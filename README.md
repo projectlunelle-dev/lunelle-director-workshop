@@ -2,9 +2,17 @@
 
 Lunelle atelier for **Story #001** — write scenes with Ryo, Ren, Natsuki, and Raina.
 
+**Repo:** https://github.com/projectlunelle-dev/lunelle-director-workshop
+
 ## Screens
 
 Story Libraries → Director’s Room → Characters → Workshop → Configure / Timeline / Archive
+
+## Photos included
+
+- Character portraits: Ryo, Ren, Natsuki, Raina (card + current)
+- Scene ideas: Lost Camera, Dare at the Seawall, Waiting Out the Rain
+- Director’s Room hero, story cover, scene art
 
 ## Local
 
@@ -17,10 +25,10 @@ npm run dev
 
 ## Netlify
 
-1. Add a new site → Import from Git → this repository
-2. Build command: `npm run build`
-3. Publish directory: `dist`
+1. Open [Netlify](https://app.netlify.com) → **Add new site** → **Import an existing project**
+2. Connect GitHub and choose **projectlunelle-dev/lunelle-director-workshop**
+3. Build command: `npm run build`
+4. Publish directory: `dist`
+5. Deploy
 
 Scene writing uses a server function. Import from Git (not a static drag-and-drop) so that path stays live.
-
-Repo: https://github.com/projectlunelle-dev/lunelle-director-workshop
