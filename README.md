@@ -4,13 +4,10 @@ Lunelle atelier for **Story #001** — write scenes with Ryo, Ren, Natsuki, and 
 
 Repo: https://github.com/projectlunelle-dev/lunelle-director-workshop
 
-## Use it now
+Upload in progress. Core workshop data, session, chrome, Vite config, and Netlify settings are already on main. Remaining: main app screens, styles, photos, and a few auth/build helpers.
 
-On your phone, tap the **Lunelle Director Workshop** card at the bottom of this Grok chat (the unpublished site). That is the working clone.
+## Netlify
 
-## GitHub → Netlify
-
-1. Open this repo on a computer
-2. Netlify → Add new site → Import from Git → this repository
-3. Build command: `npm run build`
-4. Publish directory: `dist`
+1. Add new site → Import from Git → this repository
+2. Build command: `npm run build`
+3. Publish directory: `dist`
